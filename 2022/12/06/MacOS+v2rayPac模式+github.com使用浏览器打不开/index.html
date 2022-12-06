@@ -89,7 +89,7 @@
 <meta property="og:image" content="https://avon-dot.github.io/images/1.jpg">
 <meta property="og:image" content="https://avon-dot.github.io/images/2.jpg">
 <meta property="article:published_time" content="2022-12-06T04:33:16.000Z">
-<meta property="article:modified_time" content="2022-12-06T07:33:27.148Z">
+<meta property="article:modified_time" content="2022-12-06T14:04:26.940Z">
 <meta property="article:author" content="avon">
 <meta property="article:tag" content="github，macos">
 <meta name="twitter:card" content="summary">
@@ -379,14 +379,14 @@
 <p>进行到这里之后，就开始查询怎么去解决这个问题。</p>
 <span id="more"></span>
 
-<h2 id="修改host"><a href="#修改host" class="headerlink" title="修改host"></a>修改host</h2><h4 id="修改host并查验是否生效"><a href="#修改host并查验是否生效" class="headerlink" title="修改host并查验是否生效"></a>修改host并查验是否生效</h4><p>google搜索github打不开的问题之后，最多的方法就是修改host，而且还可以急加速，修改的内容可以看看这个<br>知乎的文档<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/36154464">修改host</a></p>
+<h2 id="修改host"><a href="#修改host" class="headerlink" title="修改host"></a>修改host</h2><h3 id="修改host并查验是否生效"><a href="#修改host并查验是否生效" class="headerlink" title="修改host并查验是否生效"></a>修改host并查验是否生效</h3><p>google搜索github打不开的问题之后，最多的方法就是修改host，而且还可以急加速，修改的内容可以看看这个<br>知乎的文档<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/36154464">修改host</a></p>
 <blockquote>
 <p>Mac OS的host修改文件</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo vim /etc/host</span><br></pre></td></tr></table></figure>
 <p>保存之后，可以尝试ping以下github.com, 过一会就会生效<br> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping github.com</span><br></pre></td></tr></table></figure><br>ping的过程中可以看到自己设定的ip</p>
 </blockquote>
 <p><img src="/images/1.jpg" alt="img"></p>
-<h4 id="浏览器还是无法访问github-com"><a href="#浏览器还是无法访问github-com" class="headerlink" title="浏览器还是无法访问github.com"></a>浏览器还是无法访问github.com</h4><p>设定之后发现浏览器还是没有办法打开网页，猜测可能有两个原因：</p>
+<h3 id="浏览器还是无法访问github-com"><a href="#浏览器还是无法访问github-com" class="headerlink" title="浏览器还是无法访问github.com"></a>浏览器还是无法访问github.com</h3><p>设定之后发现浏览器还是没有办法打开网页，猜测可能有两个原因：</p>
 <ul>
 <li>系统生效了，但是浏览器还是没有生效</li>
 <li>chrome的问题</li>
@@ -585,7 +585,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9host"><span class="nav-number">2.</span> <span class="nav-text">修改host</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9host%E5%B9%B6%E6%9F%A5%E9%AA%8C%E6%98%AF%E5%90%A6%E7%94%9F%E6%95%88"><span class="nav-number">2.0.1.</span> <span class="nav-text">修改host并查验是否生效</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BF%98%E6%98%AF%E6%97%A0%E6%B3%95%E8%AE%BF%E9%97%AEgithub-com"><span class="nav-number">2.0.2.</span> <span class="nav-text">浏览器还是无法访问github.com</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E8%BD%AF%E4%BB%B6"><span class="nav-number">3.</span> <span class="nav-text">科学上网软件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%81%97%E7%95%99%E9%97%AE%E9%A2%98"><span class="nav-number">4.</span> <span class="nav-text">遗留问题</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9host"><span class="nav-number">2.</span> <span class="nav-text">修改host</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9host%E5%B9%B6%E6%9F%A5%E9%AA%8C%E6%98%AF%E5%90%A6%E7%94%9F%E6%95%88"><span class="nav-number">2.1.</span> <span class="nav-text">修改host并查验是否生效</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BF%98%E6%98%AF%E6%97%A0%E6%B3%95%E8%AE%BF%E9%97%AEgithub-com"><span class="nav-number">2.2.</span> <span class="nav-text">浏览器还是无法访问github.com</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E8%BD%AF%E4%BB%B6"><span class="nav-number">3.</span> <span class="nav-text">科学上网软件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%81%97%E7%95%99%E9%97%AE%E9%A2%98"><span class="nav-number">4.</span> <span class="nav-text">遗留问题</span></a></li></ol></div>
             
 
           </div>
