@@ -86,14 +86,14 @@
 <meta property="og:site_name" content="蛮荒之地">
 <meta property="og:description" content="问题在安装好科学上网的软件之后，可以正常访问google和youtube，发现github.com打不开，一直展示的是网页链接超时or网页链接不上的问题。  第一步，因为github本来打开的速度就是时快时慢，我以为是暂时出现的问题，于是下载了firefox，试了一下第一次可以打开，但是再继续就打不开了。 第二步，开始关闭掉代理，还是打不开github 第三步，清除浏览器缓存，退出重新登录还是不能">
 <meta property="og:locale">
-<meta property="og:image" content="https://avon-dot.github.io/source/images/1.jpg">
-<meta property="og:image" content="https://avon-dot.github.io/source/images/2.jpg">
+<meta property="og:image" content="https://avon-dot.github.io/images/1.jpg">
+<meta property="og:image" content="https://avon-dot.github.io/images/2.jpg">
 <meta property="article:published_time" content="2022-12-06T04:33:16.000Z">
-<meta property="article:modified_time" content="2022-12-06T07:12:11.554Z">
+<meta property="article:modified_time" content="2022-12-06T07:14:40.618Z">
 <meta property="article:author" content="avon">
 <meta property="article:tag" content="github，macos">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://avon-dot.github.io/source/images/1.jpg">
+<meta name="twitter:image" content="https://avon-dot.github.io/images/1.jpg">
 
 
 
@@ -376,14 +376,14 @@
 <blockquote>
 <p>Mac OS的host修改文件</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo vim /etc/host</span><br></pre></td></tr></table></figure>
-<p>保存之后，可以尝试ping以下github.com, 过一会就会生效<br> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping github.com</span><br></pre></td></tr></table></figure><br>ping的过程中可以看到自己设定的ip<br><img src="/source/images/1.jpg" alt="img"></p>
+<p>保存之后，可以尝试ping以下github.com, 过一会就会生效<br> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping github.com</span><br></pre></td></tr></table></figure><br>ping的过程中可以看到自己设定的ip<br><img src="/images/1.jpg" alt="img"></p>
 </blockquote>
 <h4 id="浏览器还是无法访问github-com"><a href="#浏览器还是无法访问github-com" class="headerlink" title="浏览器还是无法访问github.com"></a>浏览器还是无法访问github.com</h4><p>设定之后发现浏览器还是没有办法打开网页，猜测可能有两个原因：</p>
 <ul>
 <li>系统生效了，但是浏览器还是没有生效</li>
 <li>chrome的问题</li>
 </ul>
-<p>于是就针对于这个问题进行排查，首先清空所有的浏览器缓存，重启浏览器，并且试验于几个浏览器，都发现还是无法访问。<br>如何查看chrome对应解析的域名是否生效，<a href="chrome://net-internals/?#dns">dns查看</a><br><img src="/source/images/2.jpg" alt="img"></p>
+<p>于是就针对于这个问题进行排查，首先清空所有的浏览器缓存，重启浏览器，并且试验于几个浏览器，都发现还是无法访问。<br>如何查看chrome对应解析的域名是否生效，<a href="chrome://net-internals/?#dns">dns查看</a><br><img src="/images/2.jpg" alt="img"></p>
 <h2 id="科学上网软件"><a href="#科学上网软件" class="headerlink" title="科学上网软件"></a>科学上网软件</h2><p>折腾了前面的方法，依然解决不了问题，那么唯一的变量就是安装了科学上网的软件，目前配置的代理模式是PCA模式，改成了全局代理模式之后，发现可以打开github.com</p>
 <p>于是开始搜索PCA模式下无法打开github.com，首先搜索到了20年已经关闭的issue，上面标注可以自己设置代理。<br>具体可以看怎么<a target="_blank" rel="noopener" href="https://tr0py.github.io/V2Ray-PAC-Solution/">设置PCA</a></p>
 <p>至此，该问题解决</p>
