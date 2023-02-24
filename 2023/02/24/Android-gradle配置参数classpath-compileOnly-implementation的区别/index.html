@@ -19,28 +19,28 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"avon-dot.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="这是一片荒芜的地">
+    <meta name="description" content="背景经常看到build.gradle的dependencies的方式有很多种，我知道这里应该是Android的工程依赖，但是其中的区别不慎了解。而今天遇到的一个问题是，我想通过as看某一个依赖包里面的源码，com.android.tools.build-gradle的代码，但是发现这个包编译之后没有被依赖进来。观察这个依赖跟其他依赖的区别就是，这个用的是classpath的方式引入的。于是就找了一">
 <meta property="og:type" content="article">
-<meta property="og:title" content="post title with whitespace">
-<meta property="og:url" content="https://avon-dot.github.io/2022/12/01/post-title-with-whitespace/index.html">
+<meta property="og:title" content="Android配置参数classpath+compileOnly+implementation的区别">
+<meta property="og:url" content="https://avon-dot.github.io/2023/02/24/Android-gradle%E9%85%8D%E7%BD%AE%E5%8F%82%E6%95%B0classpath-compileOnly-implementation%E7%9A%84%E5%8C%BA%E5%88%AB/index.html">
 <meta property="og:site_name" content="蛮荒之地">
-<meta property="og:description" content="这是一片荒芜的地">
+<meta property="og:description" content="背景经常看到build.gradle的dependencies的方式有很多种，我知道这里应该是Android的工程依赖，但是其中的区别不慎了解。而今天遇到的一个问题是，我想通过as看某一个依赖包里面的源码，com.android.tools.build-gradle的代码，但是发现这个包编译之后没有被依赖进来。观察这个依赖跟其他依赖的区别就是，这个用的是classpath的方式引入的。于是就找了一">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-12-01T02:59:55.000Z">
-<meta property="article:modified_time" content="2022-12-06T04:37:02.377Z">
+<meta property="article:published_time" content="2023-02-24T13:48:37.000Z">
+<meta property="article:modified_time" content="2023-02-24T14:06:34.163Z">
 <meta property="article:author" content="Avon">
-<meta property="article:tag" content="Test">
+<meta property="article:tag" content="Android Gradle">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://avon-dot.github.io/2022/12/01/post-title-with-whitespace/">
+<link rel="canonical" href="https://avon-dot.github.io/2023/02/24/Android-gradle%E9%85%8D%E7%BD%AE%E5%8F%82%E6%95%B0classpath-compileOnly-implementation%E7%9A%84%E5%8C%BA%E5%88%AB/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://avon-dot.github.io/2022/12/01/post-title-with-whitespace/","path":"2022/12/01/post-title-with-whitespace/","title":"post title with whitespace"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://avon-dot.github.io/2023/02/24/Android-gradle%E9%85%8D%E7%BD%AE%E5%8F%82%E6%95%B0classpath-compileOnly-implementation%E7%9A%84%E5%8C%BA%E5%88%AB/","path":"2023/02/24/Android-gradle配置参数classpath-compileOnly-implementation的区别/","title":"Android配置参数classpath+compileOnly+implementation的区别"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>post title with whitespace | 蛮荒之地</title>
+<title>Android配置参数classpath+compileOnly+implementation的区别 | 蛮荒之地</title>
   
 
 
@@ -102,7 +102,7 @@
   
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -115,6 +115,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#classpath%E5%92%8C%E5%85%B6%E4%BB%96"><span class="nav-number">2.</span> <span class="nav-text">classpath和其他</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#compileOnly-api-implementation-%E5%85%B6%E4%BB%96%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">3.</span> <span class="nav-text">compileOnly + api + implementation + 其他的区别</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -172,7 +173,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://avon-dot.github.io/2022/12/01/post-title-with-whitespace/">
+    <link itemprop="mainEntityOfPage" href="https://avon-dot.github.io/2023/02/24/Android-gradle%E9%85%8D%E7%BD%AE%E5%8F%82%E6%95%B0classpath-compileOnly-implementation%E7%9A%84%E5%8C%BA%E5%88%AB/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpeg">
@@ -185,12 +186,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="post title with whitespace | 蛮荒之地">
+      <meta itemprop="name" content="Android配置参数classpath+compileOnly+implementation的区别 | 蛮荒之地">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          post title with whitespace
+          Android配置参数classpath+compileOnly+implementation的区别
         </h1>
 
         <div class="post-meta-container">
@@ -200,15 +201,9 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
+      
 
-      <time title="创建时间：2022-12-01 10:59:55" itemprop="dateCreated datePublished" datetime="2022-12-01T10:59:55+08:00">2022-12-01</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-12-06 12:37:02" itemprop="dateModified" datetime="2022-12-06T12:37:02+08:00">2022-12-06</time>
+      <time title="创建时间：2023-02-24 21:48:37 / 修改时间：22:06:34" itemprop="dateCreated datePublished" datetime="2023-02-24T21:48:37+08:00">2023-02-24</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -216,7 +211,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/TestC/" itemprop="url" rel="index"><span itemprop="name">TestC</span></a>
+          <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
         </span>
     </span>
 
@@ -237,7 +232,23 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        
+        <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>经常看到build.gradle的dependencies的方式有很多种，我知道这里应该是Android的工程依赖，但是其中的区别不慎了解。<br>而今天遇到的一个问题是，我想通过as看某一个依赖包里面的源码，com.android.tools.build-gradle的代码，但是发现这个包编译之后没有被依赖进来。观察这个依赖跟其他依赖的区别就是，这个用的是classpath的方式引入的。<br>于是就找了一下这几个的区别</p>
+<h3 id="classpath和其他"><a href="#classpath和其他" class="headerlink" title="classpath和其他"></a>classpath和其他</h3><p>一般创建一个android项目后会出现两个gradle:一个build.gradle(app)，一个build.gradle(Project)，一个是用来配置整个工程的的一个是用来配置app的。<br>其中添加依赖Bufferknif和greenDAO时，需要配置classpath</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">buildscript &#123;</span><br><span class="line">    ext &#123;</span><br><span class="line">        kotlinVersion = &#x27;1.6.21&#x27;</span><br><span class="line">        // Current release: Chipmunk / AGP 7.2</span><br><span class="line">        gradlePluginVersion = &#x27;7.3.1&#x27;</span><br><span class="line">        lintVersion = &#x27;30.2.0&#x27;</span><br><span class="line">        // lintVersion = &#x27;30.2.0-rc02&#x27;</span><br><span class="line">        // Upcoming lint target: Dolphin / AGP 7.3</span><br><span class="line">        // gradlePluginVersion = &#x27;7.3.0-beta01&#x27;</span><br><span class="line">        // lintVersion = &#x27;30.3.0-beta01&#x27;</span><br><span class="line">        // Upcoming lint target: Electric Eel / AGP 7.4</span><br><span class="line">        // gradlePluginVersion = &#x27;7.4.0-alpha02&#x27;</span><br><span class="line">        // lintVersion = &#x27;30.4.0-alpha02&#x27;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    repositories &#123;</span><br><span class="line">        google()</span><br><span class="line">        mavenCentral()</span><br><span class="line">    &#125;</span><br><span class="line">    dependencies &#123;</span><br><span class="line">        classpath &quot;com.android.tools.build:gradle:$gradlePluginVersion&quot;</span><br><span class="line">        classpath &quot;org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion&quot;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在Project中的gradle的dependencies 指添加依赖是使用classpath的，classpath一般是添加buildscript本身需要运行的东西</p>
+<ul>
+<li>那么buildscript是用来什么呢？<br>buildScript是用来加载gradle脚本自身需要使用的资源，可以声明的资源包括依赖项、第三方插件、maven仓库地址等。</li>
+</ul>
+<p>在app中的gradle中dependencies中添加的使应用程序所需要的依赖包，也就是项目运行所需要的东西。</p>
+<h3 id="compileOnly-api-implementation-其他的区别"><a href="#compileOnly-api-implementation-其他的区别" class="headerlink" title="compileOnly + api + implementation + 其他的区别"></a>compileOnly + api + implementation + 其他的区别</h3><p>这一块可以看官方的文档，<a target="_blank" rel="noopener" href="https://developer.android.com/studio/build/dependencies?hl=zh-cn">添加build依赖项</a>,说得很详细。主要是应用在不同场景的依赖配置。</p>
+<p>重要的就是看依赖的包影响的范围</p>
+<ul>
+<li>implementation<br>Gradle 会将依赖项添加到编译类路径，并将依赖项打包到 build 输出。其他模块只有在运行时才能使用该依赖项。减少编译时间。</li>
+<li>api<br>Gradle 会将依赖项添加到编译类路径和 build 输出。其他模块在运行时和编译时都可以使用该依赖项。</li>
+<li>compileOnly<br>Gradle 只会将依赖项添加到编译类路径（也就是说，不会将其添加到构建输出）。如果创建 Android 模块时在编译期间需要相应依赖项，但它在运行时可有可无，此配置会很有用。</li>
+</ul>
+
     </div>
 
     
@@ -246,18 +257,18 @@
 
     <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Test/" rel="tag"># Test</a>
+              <a href="/tags/Android-Gradle/" rel="tag"># Android Gradle</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
+                <a href="/2023/02/24/Android-Lint%E4%B9%8B%E8%BF%90%E8%A1%8C%E6%96%B9%E6%B3%95%E5%AE%9E%E8%B7%B5/" rel="prev" title="Android Lint之运行方法实践">
+                  <i class="fa fa-chevron-left"></i> Android Lint之运行方法实践
+                </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2022/12/01/hello-world/" rel="next" title="Hello World">
-                  Hello World <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>
