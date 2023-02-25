@@ -27,7 +27,7 @@
 <meta property="og:description" content="背景经常看到build.gradle的dependencies的方式有很多种，我知道这里应该是Android的工程依赖，但是其中的区别不慎了解。而今天遇到的一个问题是，我想通过as看某一个依赖包里面的源码，com.android.tools.build-gradle的代码，但是发现这个包编译之后没有被依赖进来。观察这个依赖跟其他依赖的区别就是，这个用的是classpath的方式引入的。于是就找了一">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-02-24T13:48:37.000Z">
-<meta property="article:modified_time" content="2023-02-24T14:06:34.163Z">
+<meta property="article:modified_time" content="2023-02-25T03:10:24.338Z">
 <meta property="article:author" content="Avon">
 <meta property="article:tag" content="Android Gradle">
 <meta name="twitter:card" content="summary">
@@ -201,9 +201,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2023-02-24 21:48:37 / 修改时间：22:06:34" itemprop="dateCreated datePublished" datetime="2023-02-24T21:48:37+08:00">2023-02-24</time>
+      <time title="创建时间：2023-02-24 21:48:37" itemprop="dateCreated datePublished" datetime="2023-02-24T21:48:37+08:00">2023-02-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-02-25 11:10:24" itemprop="dateModified" datetime="2023-02-25T11:10:24+08:00">2023-02-25</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -233,6 +239,8 @@
     
     <div class="post-body" itemprop="articleBody">
         <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>经常看到build.gradle的dependencies的方式有很多种，我知道这里应该是Android的工程依赖，但是其中的区别不慎了解。<br>而今天遇到的一个问题是，我想通过as看某一个依赖包里面的源码，com.android.tools.build-gradle的代码，但是发现这个包编译之后没有被依赖进来。观察这个依赖跟其他依赖的区别就是，这个用的是classpath的方式引入的。<br>于是就找了一下这几个的区别</p>
+<span id="more"></span>
+
 <h3 id="classpath和其他"><a href="#classpath和其他" class="headerlink" title="classpath和其他"></a>classpath和其他</h3><p>一般创建一个android项目后会出现两个gradle:一个build.gradle(app)，一个build.gradle(Project)，一个是用来配置整个工程的的一个是用来配置app的。<br>其中添加依赖Bufferknif和greenDAO时，需要配置classpath</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">buildscript &#123;</span><br><span class="line">    ext &#123;</span><br><span class="line">        kotlinVersion = &#x27;1.6.21&#x27;</span><br><span class="line">        // Current release: Chipmunk / AGP 7.2</span><br><span class="line">        gradlePluginVersion = &#x27;7.3.1&#x27;</span><br><span class="line">        lintVersion = &#x27;30.2.0&#x27;</span><br><span class="line">        // lintVersion = &#x27;30.2.0-rc02&#x27;</span><br><span class="line">        // Upcoming lint target: Dolphin / AGP 7.3</span><br><span class="line">        // gradlePluginVersion = &#x27;7.3.0-beta01&#x27;</span><br><span class="line">        // lintVersion = &#x27;30.3.0-beta01&#x27;</span><br><span class="line">        // Upcoming lint target: Electric Eel / AGP 7.4</span><br><span class="line">        // gradlePluginVersion = &#x27;7.4.0-alpha02&#x27;</span><br><span class="line">        // lintVersion = &#x27;30.4.0-alpha02&#x27;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    repositories &#123;</span><br><span class="line">        google()</span><br><span class="line">        mavenCentral()</span><br><span class="line">    &#125;</span><br><span class="line">    dependencies &#123;</span><br><span class="line">        classpath &quot;com.android.tools.build:gradle:$gradlePluginVersion&quot;</span><br><span class="line">        classpath &quot;org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion&quot;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 

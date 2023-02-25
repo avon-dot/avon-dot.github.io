@@ -197,9 +197,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2023-02-24 21:48:37 / 修改时间：22:06:34" itemprop="dateCreated datePublished" datetime="2023-02-24T21:48:37+08:00">2023-02-24</time>
+      <time title="创建时间：2023-02-24 21:48:37" itemprop="dateCreated datePublished" datetime="2023-02-24T21:48:37+08:00">2023-02-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-02-25 11:10:24" itemprop="dateModified" datetime="2023-02-25T11:10:24+08:00">2023-02-25</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -222,22 +228,14 @@
     
     <div class="post-body" itemprop="articleBody">
           <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>经常看到build.gradle的dependencies的方式有很多种，我知道这里应该是Android的工程依赖，但是其中的区别不慎了解。<br>而今天遇到的一个问题是，我想通过as看某一个依赖包里面的源码，com.android.tools.build-gradle的代码，但是发现这个包编译之后没有被依赖进来。观察这个依赖跟其他依赖的区别就是，这个用的是classpath的方式引入的。<br>于是就找了一下这几个的区别</p>
-<h3 id="classpath和其他"><a href="#classpath和其他" class="headerlink" title="classpath和其他"></a>classpath和其他</h3><p>一般创建一个android项目后会出现两个gradle:一个build.gradle(app)，一个build.gradle(Project)，一个是用来配置整个工程的的一个是用来配置app的。<br>其中添加依赖Bufferknif和greenDAO时，需要配置classpath</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">buildscript &#123;</span><br><span class="line">    ext &#123;</span><br><span class="line">        kotlinVersion = &#x27;1.6.21&#x27;</span><br><span class="line">        // Current release: Chipmunk / AGP 7.2</span><br><span class="line">        gradlePluginVersion = &#x27;7.3.1&#x27;</span><br><span class="line">        lintVersion = &#x27;30.2.0&#x27;</span><br><span class="line">        // lintVersion = &#x27;30.2.0-rc02&#x27;</span><br><span class="line">        // Upcoming lint target: Dolphin / AGP 7.3</span><br><span class="line">        // gradlePluginVersion = &#x27;7.3.0-beta01&#x27;</span><br><span class="line">        // lintVersion = &#x27;30.3.0-beta01&#x27;</span><br><span class="line">        // Upcoming lint target: Electric Eel / AGP 7.4</span><br><span class="line">        // gradlePluginVersion = &#x27;7.4.0-alpha02&#x27;</span><br><span class="line">        // lintVersion = &#x27;30.4.0-alpha02&#x27;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    repositories &#123;</span><br><span class="line">        google()</span><br><span class="line">        mavenCentral()</span><br><span class="line">    &#125;</span><br><span class="line">    dependencies &#123;</span><br><span class="line">        classpath &quot;com.android.tools.build:gradle:$gradlePluginVersion&quot;</span><br><span class="line">        classpath &quot;org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion&quot;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在Project中的gradle的dependencies 指添加依赖是使用classpath的，classpath一般是添加buildscript本身需要运行的东西</p>
-<ul>
-<li>那么buildscript是用来什么呢？<br>buildScript是用来加载gradle脚本自身需要使用的资源，可以声明的资源包括依赖项、第三方插件、maven仓库地址等。</li>
-</ul>
-<p>在app中的gradle中dependencies中添加的使应用程序所需要的依赖包，也就是项目运行所需要的东西。</p>
-<h3 id="compileOnly-api-implementation-其他的区别"><a href="#compileOnly-api-implementation-其他的区别" class="headerlink" title="compileOnly + api + implementation + 其他的区别"></a>compileOnly + api + implementation + 其他的区别</h3><p>这一块可以看官方的文档，<a target="_blank" rel="noopener" href="https://developer.android.com/studio/build/dependencies?hl=zh-cn">添加build依赖项</a>,说得很详细。主要是应用在不同场景的依赖配置。</p>
-<p>重要的就是看依赖的包影响的范围</p>
-<ul>
-<li>implementation<br>Gradle 会将依赖项添加到编译类路径，并将依赖项打包到 build 输出。其他模块只有在运行时才能使用该依赖项。减少编译时间。</li>
-<li>api<br>Gradle 会将依赖项添加到编译类路径和 build 输出。其他模块在运行时和编译时都可以使用该依赖项。</li>
-<li>compileOnly<br>Gradle 只会将依赖项添加到编译类路径（也就是说，不会将其添加到构建输出）。如果创建 Android 模块时在编译期间需要相应依赖项，但它在运行时可有可无，此配置会很有用。</li>
-</ul>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/02/24/Android-gradle%E9%85%8D%E7%BD%AE%E5%8F%82%E6%95%B0classpath-compileOnly-implementation%E7%9A%84%E5%8C%BA%E5%88%AB/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -369,9 +367,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2023-02-24 09:54:22 / 修改时间：09:54:52" itemprop="dateCreated datePublished" datetime="2023-02-24T09:54:22+08:00">2023-02-24</time>
+      <time title="创建时间：2023-02-24 09:54:22" itemprop="dateCreated datePublished" datetime="2023-02-24T09:54:22+08:00">2023-02-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-02-25 11:10:18" itemprop="dateModified" datetime="2023-02-25T11:10:18+08:00">2023-02-25</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -393,7 +397,24 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          
+          <h3 id="Lint的工具服务"><a href="#Lint的工具服务" class="headerlink" title="Lint的工具服务"></a>Lint的工具服务</h3><p>除了常规的继承不同的扫描的方法，我觉得还需要了解一下lint已经封装好的一些工具函数，在写规则的过程中，可以帮助我们更简单很完善的去实现规则的主要逻辑。</p>
+<ul>
+<li>ConstantEvaluator</li>
+<li>TypeEvaluator</li>
+<li>JavaEvaluator</li>
+<li>DataFlowAnalyzer</li>
+<li>ResourceEvaluator</li>
+<li>UastLintUtils</li>
+<li>LintUtils</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/02/24/Android-Lint%E4%B9%8B%E5%A5%BD%E7%94%A8%E7%9A%84%E5%B7%A5%E5%85%B7%E7%B1%BB/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
