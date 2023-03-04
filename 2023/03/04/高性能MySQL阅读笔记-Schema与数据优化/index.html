@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"avon-dot.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="选择优化的数据类型正确的数据类型选择原则  更小的通常更好 eg.只需要存储0-20，tinyint unsighned更好 需要确保没有低估存储值的范围，增加数据类型的范围是一个耗时且痛苦的操作   简单就好 整型比字符操作代价更小 应该使用MySQL的内建类型date、time、datetime来存储日期和时间 应该使用整型来存储IP地址   尽量避免NULL 通常情况下指定维NOT NULL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高性能MySQL阅读笔记-Schema与数据优化">
+<meta property="og:url" content="https://avon-dot.github.io/2023/03/04/%E9%AB%98%E6%80%A7%E8%83%BDMySQL%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0-Schema%E4%B8%8E%E6%95%B0%E6%8D%AE%E4%BC%98%E5%8C%96/index.html">
+<meta property="og:site_name" content="蛮荒之地">
+<meta property="og:description" content="选择优化的数据类型正确的数据类型选择原则  更小的通常更好 eg.只需要存储0-20，tinyint unsighned更好 需要确保没有低估存储值的范围，增加数据类型的范围是一个耗时且痛苦的操作   简单就好 整型比字符操作代价更小 应该使用MySQL的内建类型date、time、datetime来存储日期和时间 应该使用整型来存储IP地址   尽量避免NULL 通常情况下指定维NOT NULL">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-03-04T03:08:09.000Z">
+<meta property="article:modified_time" content="2023-03-04T17:09:44.866Z">
+<meta property="article:author" content="Avon">
+<meta property="article:tag" content="高性能MySQL">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://avon-dot.github.io/2023/03/04/%E9%AB%98%E6%80%A7%E8%83%BDMySQL%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0-Schema%E4%B8%8E%E6%95%B0%E6%8D%AE%E4%BC%98%E5%8C%96/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://avon-dot.github.io/2023/03/04/%E9%AB%98%E6%80%A7%E8%83%BDMySQL%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0-Schema%E4%B8%8E%E6%95%B0%E6%8D%AE%E4%BC%98%E5%8C%96/","path":"2023/03/04/高性能MySQL阅读笔记-Schema与数据优化/","title":"高性能MySQL阅读笔记-Schema与数据优化"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>高性能MySQL阅读笔记-Schema与数据优化 | 蛮荒之地</title>
+  
+
+
+
+
+
+
+  <script async defer data-website-id="" src=""></script>
+
+  <script defer data-domain="" src=""></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">蛮荒之地</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">野蛮生长</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%89%E6%8B%A9%E4%BC%98%E5%8C%96%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">选择优化的数据类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B4%E6%95%B0%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.1.</span> <span class="nav-text">整数类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E6%95%B0%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.2.</span> <span class="nav-text">实数类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#DECIMAL%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.2.1.</span> <span class="nav-text">DECIMAL类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%AE%E7%82%B9%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.2.2.</span> <span class="nav-text">浮点类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BB%BA%E8%AE%AE%EF%BC%9A"><span class="nav-number">1.2.3.</span> <span class="nav-text">建议：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.3.</span> <span class="nav-text">字符串类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#VARCHAR%E5%92%8CCHAR%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.3.1.</span> <span class="nav-text">VARCHAR和CHAR类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#BLOB%E5%92%8CTEXT%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.3.2.</span> <span class="nav-text">BLOB和TEXT类型</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Avon"
+      src="/images/avatar.jpeg">
+  <p class="site-author-name" itemprop="name">Avon</p>
+  <div class="site-description" itemprop="description">这是一片荒芜的地</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/avon-dot" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;avon-dot" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://avon-dot.github.io/2023/03/04/%E9%AB%98%E6%80%A7%E8%83%BDMySQL%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0-Schema%E4%B8%8E%E6%95%B0%E6%8D%AE%E4%BC%98%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="Avon">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛮荒之地">
+      <meta itemprop="description" content="这是一片荒芜的地">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="高性能MySQL阅读笔记-Schema与数据优化 | 蛮荒之地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          高性能MySQL阅读笔记-Schema与数据优化
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-03-04 11:08:09" itemprop="dateCreated datePublished" datetime="2023-03-04T11:08:09+08:00">2023-03-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-03-05 01:09:44" itemprop="dateModified" datetime="2023-03-05T01:09:44+08:00">2023-03-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">读书笔记</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="选择优化的数据类型"><a href="#选择优化的数据类型" class="headerlink" title="选择优化的数据类型"></a>选择优化的数据类型</h2><p>正确的数据类型选择原则</p>
+<ul>
+<li>更小的通常更好<ul>
+<li>eg.只需要存储0-20，tinyint unsighned更好</li>
+<li>需要确保没有低估存储值的范围，增加数据类型的范围是一个耗时且痛苦的操作</li>
+</ul>
+</li>
+<li>简单就好<ul>
+<li>整型比字符操作代价更小</li>
+<li>应该使用MySQL的内建类型date、time、datetime来存储日期和时间</li>
+<li>应该使用整型来存储IP地址</li>
+</ul>
+</li>
+<li>尽量避免NULL<ul>
+<li>通常情况下指定维NOT NULL，除非真的需要存储NULL</li>
+<li>查询中如果包含有NULL的列，可为NULL的列使得索引、索引统计和值的比较更复杂</li>
+<li>可为NULL的列会使用更多的存储空间，为索引的列尽量避免成为可为NULL的列</li>
+<li>例外：InnoDB使用单独的bit存储NULL值，所以对于稀疏矩阵有很好的空间效率，但并不是适用于MyISAM</li>
+</ul>
+</li>
+</ul>
+<span id="more"></span>
+
+<h3 id="整数类型"><a href="#整数类型" class="headerlink" title="整数类型"></a>整数类型</h3><p>有几种整数类型，存储的空间为N位，存储的的值的范围为$-2^{N-1}$到$2^{N-1}-1$</p>
+<ul>
+<li>TINYINT，N&#x3D;8</li>
+<li>SMALLINT，N&#x3D;16</li>
+<li>MEDIUMINT，N&#x3D;24</li>
+<li>INT，N&#x3D;32</li>
+<li>BIGINT，N&#x3D;64</li>
+</ul>
+<p>整数类型可以选择unsigned的属性，表示不允许为负值，存储的数据为0到$2^N-1$，例如TYNYINT UNSIGNED可以存储的范围是0<del>255，而TYNYINT的存储范围是-128</del>127</p>
+<p>MySQL可以为整型指定宽度，INT(11),对大多数应用这是没有意义的，它不会限制值的合法范围，但是规定了一些交互工具显示的字符个数，对于存储和计算而言，INT(1)和INT(20)是相同的。</p>
+<h3 id="实数类型"><a href="#实数类型" class="headerlink" title="实数类型"></a>实数类型</h3><p>实数是带有小数部分的数据，在MySQL中，实数类型也不仅仅是只为了存储小数，也可以使用DECIMAL存储比BIGINT还大的整数。</p>
+<p>MySQL既支持精确类型，也支持不精确类型</p>
+<ul>
+<li>FLOAT和DOUBLE类型支持使用标准的浮点运算的近似计算</li>
+<li>DECIMAL类型用于存储精确的小数，在高版本支持精确计算</li>
+</ul>
+<h4 id="DECIMAL类型"><a href="#DECIMAL类型" class="headerlink" title="DECIMAL类型"></a>DECIMAL类型</h4><ul>
+<li>对于DECIMAL列可以指定小数点前后所允许的最大位数</li>
+<li>MySQL5.0以及更高版本将数字打包保存到一个二进制的字符串中，每4个字节存储9个数<ul>
+<li>DECIMAL(18,9)代表的是小数点两边各存储9个数，一共存储9个字节</li>
+</ul>
+</li>
+<li>高版本的DECIMAL类型允许最多65个数字<ul>
+<li>早期的版本是254个数字，而且保存为未压缩的字符串，一个数字一个字节，实际计算中并不能使用这么大的数字，因为DECIMAL只是一种存储格式，在计算中DECIMAL会转换为DOUBLE类型</li>
+</ul>
+</li>
+<li>建议只指定数据类型，不指定精度</li>
+</ul>
+<h4 id="浮点类型"><a href="#浮点类型" class="headerlink" title="浮点类型"></a>浮点类型</h4><ul>
+<li>FLOAT使用4个字节，DOUBLE使用8个字节</li>
+<li>只能选择数据类型，MySQL使用DOUBLE类型作为内部浮点计算的类型</li>
+</ul>
+<h4 id="建议："><a href="#建议：" class="headerlink" title="建议："></a>建议：</h4><ul>
+<li>因为需要额外的空间和计算开销，尽量在小数需要精确计算的时候使用DECIMAL类型，例如存储财务数据</li>
+<li>如果在数据量比较大的时候，可以考虑用BIGINT代替DECIMAL，将要存放的数据根据小数乘以相应的倍数即可<ul>
+<li>假设存储的数据要精确到万分之一，则可以把所有的金额乘以一百万，然后将结果存放在BIGINT中，这样可以同时避免浮点计算不精确和DECIMAL精确计算代价高的问题</li>
+</ul>
+</li>
+</ul>
+<h3 id="字符串类型"><a href="#字符串类型" class="headerlink" title="字符串类型"></a>字符串类型</h3><p>MySQL支持多种字符串类型，每个字符串列可以定义自己的字符集和排序规则</p>
+<h4 id="VARCHAR和CHAR类型"><a href="#VARCHAR和CHAR类型" class="headerlink" title="VARCHAR和CHAR类型"></a>VARCHAR和CHAR类型</h4><ul>
+<li><p>VARCHAR类型</p>
+<ul>
+<li>VARCHAR类型用于存储可变长字符串，是最常见的字符串类型</li>
+<li>VARCHAR需要使用1-2个字节额外的记录字符串的长度<ul>
+<li>如果列的最大长度小于255，则用1个字节记录，否则用2个字节记录</li>
+<li>VARCHAR(10)需要11个字节，VARCHAR(1000)需要1002个字节</li>
+</ul>
+</li>
+<li>VARCHAR节省了存储空间，对性能也有帮助</li>
+<li>由于行是可变长度的，UPDATE时可能使得行可能比原来更长，导致一些额外工作要做</li>
+<li>使用VARCHAR的情况<ul>
+<li>字符串列的最大长度比平均长度大很多</li>
+<li>列的更新较少</li>
+<li>使用了像UTF-8这样复杂的字符集，每个字符使用的不同的字节数来进行存储</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>CHAR类型</p>
+<ul>
+<li>CHAR的类型是定长的</li>
+<li>当存储CHAR值的时候，MySQL会删除所有的末尾的空格</li>
+<li>CHAR比较适合存储很短的字符串，或者是所有的值都接近一个长度<ul>
+<li>CHAR非常适合存储密码的MD5值，因为这是一个定长的值</li>
+<li>对于非常短的列，CHAR在空间上也更有效率</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>BINARY和VARBINARY</p>
+<ul>
+<li>这两者是与字符类型很相似的类型，他们存储的是二进制字符串，二进制字符串与常规字符串很相似，只是他们存储的是字节码而不是字符。</li>
+<li>填充值也不一样，MySQL填充BINARY是\0（零字节）而不是空格</li>
+<li>存储二进制的时候使用字节码而不是字符，二进制的优势不仅仅体现在大小写敏感，而且比较计算的时候也比较快，每次按照字节比较数值大小即可。</li>
+</ul>
+</li>
+</ul>
+<h4 id="BLOB和TEXT类型"><a href="#BLOB和TEXT类型" class="headerlink" title="BLOB和TEXT类型"></a>BLOB和TEXT类型</h4><p>BLOB和TEXT类型都是为了存储很大的数据而设计的字符类型，分别采用二进制和字符类型存储。与其他类型不同，MySQL会把每个BLOB和TEXT当成一个独立的对象处理，存储引擎在存储时会做特殊的处理。</p>
+<ul>
+<li>BLOB类型家族<ul>
+<li>TINYBLOB</li>
+<li>SMALLBLOB</li>
+<li>BLOB</li>
+<li>MEDINUMBLOB</li>
+<li>LONGBLOB</li>
+</ul>
+</li>
+<li>TEXT家族<ul>
+<li>TINYTEXT</li>
+<li>SMALLTEXT</li>
+<li>TEXT</li>
+<li>MEDINUMTEXT</li>
+<li>LONGTEXT</li>
+</ul>
+</li>
+</ul>
+<p>其中BLOB和SMALLBLOB是同义词，TEXT和SMALLTEXT是同义词</p>
+<p>两者异同：</p>
+<ul>
+<li>BLOB存储的是二进制数据，没有排序规则或字符集</li>
+<li>TEXT存储的字符，有字符集和排序规则</li>
+<li>MySQL对BLOB和TEXT只对每个列前面的max_sort_length字节而不是全部的字节进行排序</li>
+<li>MySQL不能将BLOB和TEXT列的全部长度的字符串进行索引，也不能是这些索引消除排序</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%AB%98%E6%80%A7%E8%83%BDMySQL/" rel="tag"># 高性能MySQL</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/03/03/MacOS%E5%AE%89%E8%A3%85MySQL/" rel="prev" title="MacOS安装MySQL">
+                  <i class="fa fa-chevron-left"></i> MacOS安装MySQL
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Avon</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

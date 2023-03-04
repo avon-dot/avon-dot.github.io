@@ -127,18 +127,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-count">10</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -160,6 +160,118 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://avon-dot.github.io/2023/03/04/%E9%AB%98%E6%80%A7%E8%83%BDMySQL%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0-Schema%E4%B8%8E%E6%95%B0%E6%8D%AE%E4%BC%98%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="Avon">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛮荒之地">
+      <meta itemprop="description" content="这是一片荒芜的地">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | 蛮荒之地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2023/03/04/%E9%AB%98%E6%80%A7%E8%83%BDMySQL%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0-Schema%E4%B8%8E%E6%95%B0%E6%8D%AE%E4%BC%98%E5%8C%96/" class="post-title-link" itemprop="url">高性能MySQL阅读笔记-Schema与数据优化</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-03-04 11:08:09" itemprop="dateCreated datePublished" datetime="2023-03-04T11:08:09+08:00">2023-03-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-03-05 01:09:44" itemprop="dateModified" datetime="2023-03-05T01:09:44+08:00">2023-03-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">读书笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="选择优化的数据类型"><a href="#选择优化的数据类型" class="headerlink" title="选择优化的数据类型"></a>选择优化的数据类型</h2><p>正确的数据类型选择原则</p>
+<ul>
+<li>更小的通常更好<ul>
+<li>eg.只需要存储0-20，tinyint unsighned更好</li>
+<li>需要确保没有低估存储值的范围，增加数据类型的范围是一个耗时且痛苦的操作</li>
+</ul>
+</li>
+<li>简单就好<ul>
+<li>整型比字符操作代价更小</li>
+<li>应该使用MySQL的内建类型date、time、datetime来存储日期和时间</li>
+<li>应该使用整型来存储IP地址</li>
+</ul>
+</li>
+<li>尽量避免NULL<ul>
+<li>通常情况下指定维NOT NULL，除非真的需要存储NULL</li>
+<li>查询中如果包含有NULL的列，可为NULL的列使得索引、索引统计和值的比较更复杂</li>
+<li>可为NULL的列会使用更多的存储空间，为索引的列尽量避免成为可为NULL的列</li>
+<li>例外：InnoDB使用单独的bit存储NULL值，所以对于稀疏矩阵有很好的空间效率，但并不是适用于MyISAM</li>
+</ul>
+</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/03/04/%E9%AB%98%E6%80%A7%E8%83%BDMySQL%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0-Schema%E4%B8%8E%E6%95%B0%E6%8D%AE%E4%BC%98%E5%8C%96/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
