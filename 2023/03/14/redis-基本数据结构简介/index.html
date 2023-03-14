@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"avon-dot.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Redis是一个数据结构服务。Redis提供了一系列的基本数据结构来解决大量的问题，从缓存到队列到事件处理。本文就先简单介绍一下基本的数据结构。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis-基本数据结构简介">
+<meta property="og:url" content="https://avon-dot.github.io/2023/03/14/redis-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%AE%80%E4%BB%8B/index.html">
+<meta property="og:site_name" content="蛮荒之地">
+<meta property="og:description" content="Redis是一个数据结构服务。Redis提供了一系列的基本数据结构来解决大量的问题，从缓存到队列到事件处理。本文就先简单介绍一下基本的数据结构。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://avon-dot.github.io/images/2023-03-14-11-16-26.png">
+<meta property="og:image" content="https://avon-dot.github.io/images/2023-03-14-11-31-33.png">
+<meta property="og:image" content="https://avon-dot.github.io/images/2023-03-14-15-16-16.png">
+<meta property="og:image" content="https://avon-dot.github.io/images/2023-03-14-15-33-13.png">
+<meta property="og:image" content="https://avon-dot.github.io/images/2023-03-14-15-48-15.png">
+<meta property="og:image" content="https://avon-dot.github.io/images/2023-03-14-16-05-52.png">
+<meta property="og:image" content="https://avon-dot.github.io/images/2023-03-14-16-14-33.png">
+<meta property="og:image" content="https://avon-dot.github.io/images/2023-03-14-16-21-46.png">
+<meta property="article:published_time" content="2023-03-14T02:49:56.000Z">
+<meta property="article:modified_time" content="2023-03-14T08:23:49.551Z">
+<meta property="article:author" content="Avon">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://avon-dot.github.io/images/2023-03-14-11-16-26.png">
+
+
+<link rel="canonical" href="https://avon-dot.github.io/2023/03/14/redis-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%AE%80%E4%BB%8B/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://avon-dot.github.io/2023/03/14/redis-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%AE%80%E4%BB%8B/","path":"2023/03/14/redis-基本数据结构简介/","title":"redis-基本数据结构简介"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>redis-基本数据结构简介 | 蛮荒之地</title>
+  
+
+
+
+
+
+
+  <script async defer data-website-id="" src=""></script>
+
+  <script defer data-domain="" src=""></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">蛮荒之地</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">野蛮生长</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/me" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Strings"><span class="nav-number">1.1.</span> <span class="nav-text">Strings</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E6%96%B9%E6%B3%95"><span class="nav-number">1.1.1.</span> <span class="nav-text">操作方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%99%90%E5%88%B6"><span class="nav-number">1.1.2.</span> <span class="nav-text">限制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lists"><span class="nav-number">1.2.</span> <span class="nav-text">Lists</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.1.</span> <span class="nav-text">基本操作方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%99%90%E5%88%B6-1"><span class="nav-number">1.2.2.</span> <span class="nav-text">限制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sets"><span class="nav-number">1.3.</span> <span class="nav-text">Sets</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="nav-number">1.3.1.</span> <span class="nav-text">基本操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%99%90%E5%88%B6-2"><span class="nav-number">1.3.2.</span> <span class="nav-text">限制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hashes"><span class="nav-number">1.4.</span> <span class="nav-text">Hashes</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C-1"><span class="nav-number">1.4.1.</span> <span class="nav-text">基本操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%99%90%E5%88%B6-3"><span class="nav-number">1.4.2.</span> <span class="nav-text">限制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sorted-sets"><span class="nav-number">1.5.</span> <span class="nav-text">Sorted sets</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C"><span class="nav-number">1.5.1.</span> <span class="nav-text">基础操作</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Streams"><span class="nav-number">1.6.</span> <span class="nav-text">Streams</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C-2"><span class="nav-number">1.6.1.</span> <span class="nav-text">基本操作</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Geospatial-indexes"><span class="nav-number">1.7.</span> <span class="nav-text">Geospatial indexes</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C-3"><span class="nav-number">1.7.1.</span> <span class="nav-text">基本操作</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bitmaps"><span class="nav-number">1.8.</span> <span class="nav-text">Bitmaps</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bitfields"><span class="nav-number">1.9.</span> <span class="nav-text">Bitfields</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HyperLogLog"><span class="nav-number">1.10.</span> <span class="nav-text">HyperLogLog</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C-4"><span class="nav-number">1.10.1.</span> <span class="nav-text">基本操作</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Avon"
+      src="/images/avatar.jpeg">
+  <p class="site-author-name" itemprop="name">Avon</p>
+  <div class="site-description" itemprop="description">这是一片荒芜的地</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/avon-dot" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;avon-dot" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://avon-dot.github.io/2023/03/14/redis-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%AE%80%E4%BB%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+      <meta itemprop="name" content="Avon">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蛮荒之地">
+      <meta itemprop="description" content="这是一片荒芜的地">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="redis-基本数据结构简介 | 蛮荒之地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          redis-基本数据结构简介
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2023-03-14 10:49:56 / 修改时间：16:23:49" itemprop="dateCreated datePublished" datetime="2023-03-14T10:49:56+08:00">2023-03-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>Redis是一个数据结构服务。Redis提供了一系列的基本数据结构来解决大量的问题，从缓存到队列到事件处理。本文就先简单介绍一下基本的数据结构。</p>
+<span id="more"></span>
+<h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><h3 id="Strings"><a href="#Strings" class="headerlink" title="Strings"></a>Strings</h3><p>redis的字符串是最基础的数据结构，代表字节序列。可以存储包括文本，序列化对象，二进制数组。也可以当做计数器或者</p>
+<h4 id="操作方法"><a href="#操作方法" class="headerlink" title="操作方法"></a>操作方法</h4><ul>
+<li>SET 存储数据</li>
+<li>SETNX 当数据不存在的时候存储，否则不存储，可以用于实现锁</li>
+<li>GET 获取数据</li>
+<li>MGET 返回多个string的值</li>
+<li>INCRBY 自增</li>
+<li>INCR 自增1</li>
+</ul>
+<p><img src="/../images/2023-03-14-11-16-26.png"></p>
+<h4 id="限制"><a href="#限制" class="headerlink" title="限制"></a>限制</h4><p>默认的，redis string 最大存储512MB</p>
+<h3 id="Lists"><a href="#Lists" class="headerlink" title="Lists"></a>Lists</h3><p>redis的lists是按照插入顺序存储的字符串列表，redis lists一般用于</p>
+<ul>
+<li>实现栈和队列</li>
+<li>后台系统实现队列管理</li>
+</ul>
+<h4 id="基本操作方法"><a href="#基本操作方法" class="headerlink" title="基本操作方法"></a>基本操作方法</h4><ul>
+<li>LPUSH 在列表的头部添加新的元素；RPUSH尾部添加</li>
+<li>LPOP 移除并且返回头部的元素；同理RPOP是尾部</li>
+<li>LLEN 返回list的长度</li>
+<li>LMOVE 原子性的移动元素从一个list到另外一个list</li>
+<li>LTRIM 删除范围类的list元素</li>
+<li>LRANGE 展示范围内的list元素</li>
+</ul>
+<p><img src="/../images/2023-03-14-11-31-33.png"></p>
+<h4 id="限制-1"><a href="#限制-1" class="headerlink" title="限制"></a>限制</h4><p>list 的最大值$2^32 - 1$(4,294,967,295)个数据</p>
+<h3 id="Sets"><a href="#Sets" class="headerlink" title="Sets"></a>Sets</h3><p>redis sets是不重合的未排序的字符串集合，在redis set的操作中，add，remove在O(1)时间复杂度。可以在这些场景下高效使用redis：</p>
+<ul>
+<li>追踪不同的元素，例如记录所有博客的不同IP访问</li>
+<li>代表某一类的集合，比如用户角色的集合</li>
+<li>执行常见的集合操作，例如交集、并集和差分。</li>
+</ul>
+<h4 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h4><ul>
+<li>SADD 添加一个或者多个元素</li>
+<li>SREM 删除一个或者多个元素</li>
+<li>SISMEMBER 查看某个元素是否在set中</li>
+<li>SINTER 返回2个或者多个set中的相同元素</li>
+<li>SCARD 返回set的size</li>
+<li>SDIFF 返回第一个set中不存在于其他set的值</li>
+<li>SMEMBERS 返回所有的数据</li>
+</ul>
+<p><img src="/../images/2023-03-14-15-16-16.png"></p>
+<h4 id="限制-2"><a href="#限制-2" class="headerlink" title="限制"></a>限制</h4><p>resdis最大的set的大小是$2^32 - 1$(4,294,967,295)个元素。</p>
+<h3 id="Hashes"><a href="#Hashes" class="headerlink" title="Hashes"></a>Hashes</h3><p>redis hashes存储的是filed-value对的数据，可以使用hash表来存储对象和数据分组等。</p>
+<h4 id="基本操作-1"><a href="#基本操作-1" class="headerlink" title="基本操作"></a>基本操作</h4><ul>
+<li>HSET 设置值</li>
+<li>HGET 取值</li>
+<li>HGETALL 取所有的键值对</li>
+<li>HMGET 取多个键值对应的value</li>
+<li>HINCRYBY 增加给定的value的数值的大小</li>
+<li>HKEYS 获取数据所有的键值</li>
+<li>HLEN 获取数据的键值对长度</li>
+<li>HVALS 获取数据所有的value值</li>
+</ul>
+<p><img src="/../images/2023-03-14-15-33-13.png"></p>
+<h4 id="限制-3"><a href="#限制-3" class="headerlink" title="限制"></a>限制</h4><p>每一个hash值可以存储4,294,967,295 (2^32 - 1)键值对，实践情况根据部署redis的机器的内存情况有关。</p>
+<h3 id="Sorted-sets"><a href="#Sorted-sets" class="headerlink" title="Sorted sets"></a>Sorted sets</h3><p>根据每个string的分数进行排序的set集合，如果说不同的元素有相同的元素，那按照词典序进行排序。一些应用场景：</p>
+<ul>
+<li>排行榜。例如可以使用排序集轻松维护大型在线游戏中最高分的有序列表。</li>
+<li>速率限制。尤其可以使用sorted set来构建一个滑动窗口速率限制器限制API请求的通过的数量。</li>
+</ul>
+<h4 id="基础操作"><a href="#基础操作" class="headerlink" title="基础操作"></a>基础操作</h4><ul>
+<li>ZADD 添加分数和元素</li>
+<li>ZRANGE 展示范围内的元素，按照要求的排序方式</li>
+<li>ZRANK 返回指定元素的排名，按照升序排列</li>
+<li>ZRERANK 返回指定元素的排名，按照降序排列</li>
+</ul>
+<p><img src="/../images/2023-03-14-15-48-15.png"></p>
+<h3 id="Streams"><a href="#Streams" class="headerlink" title="Streams"></a>Streams</h3><p>Redis 流是一种数据结构，其作用类似于仅追加日志。流有助于按事件发生的顺序记录事件，然后将它们联合起来进行处理。一些redis stream的使用场景：</p>
+<ul>
+<li>时间溯源，例如用户操作点击操作等</li>
+<li>传感器监控，例如读取设备的数量</li>
+<li>消息通知，例如每一个用户的通知都记录在一个stream里面<br>redis 会生成一个单独的ID给每一个stream实例。redis也提供了stream的修剪策略和消费策略，放置stream增长过快。</li>
+</ul>
+<h4 id="基本操作-2"><a href="#基本操作-2" class="headerlink" title="基本操作"></a>基本操作</h4><ul>
+<li>XADD 添加一条记录</li>
+<li>XREAD 读取一条记录</li>
+<li>XRANGE 返回范围类的记录</li>
+<li>XLEN 返回stream的长度</li>
+</ul>
+<p><img src="/../images/2023-03-14-16-05-52.png"></p>
+<h3 id="Geospatial-indexes"><a href="#Geospatial-indexes" class="headerlink" title="Geospatial indexes"></a>Geospatial indexes</h3><p>Redis 地理空间索引可用于查找给定地理半径或边界框内的位置。</p>
+<h4 id="基本操作-3"><a href="#基本操作-3" class="headerlink" title="基本操作"></a>基本操作</h4><ul>
+<li>GEOADD 添加一个地理位置</li>
+<li>GEOSEARCH 查询给的地址的周围多少公里内的位置</li>
+</ul>
+<p><img src="/../images/2023-03-14-16-14-33.png"></p>
+<h3 id="Bitmaps"><a href="#Bitmaps" class="headerlink" title="Bitmaps"></a>Bitmaps</h3><p>可以对字符串进行位运算。</p>
+<h3 id="Bitfields"><a href="#Bitfields" class="headerlink" title="Bitfields"></a>Bitfields</h3><p>Redis 位域有效地对字符串值中的多个计数器进行编码。位字段提供原子获取、设置和增量操作，并支持不同的溢出策略。</p>
+<h3 id="HyperLogLog"><a href="#HyperLogLog" class="headerlink" title="HyperLogLog"></a>HyperLogLog</h3><p>Redis HyperLogLog 数据结构提供大型集合的基数（即元素数）的概率估计。</p>
+<h4 id="基本操作-4"><a href="#基本操作-4" class="headerlink" title="基本操作"></a>基本操作</h4><ul>
+<li>PFADD 增加一个元素进入HyperLogLog</li>
+<li>PFCOUNT 返回HyperLogLog里面的近似个数</li>
+<li>PFMERGE 将两个或多个 HyperLogLogs 合并为一个</li>
+</ul>
+<p><img src="/../images/2023-03-14-16-21-46.png"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/redis/" rel="tag"># redis</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/03/14/MacOS%E5%AE%89%E8%A3%85redis/" rel="prev" title="MacOS安装redis">
+                  <i class="fa fa-chevron-left"></i> MacOS安装redis
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Avon</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
